@@ -216,10 +216,10 @@ function Contact() {
     // TODO: replace placeholders with your EmailJS service ID, template ID, and public key.
     try {
       await send(
-        "service_b7gnolr",
-        "template_ry39kne",
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
         formData,
-        "FreuttiBqtkiSu4JO"
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY
       );
       setSent(true);
     } catch (err) {
