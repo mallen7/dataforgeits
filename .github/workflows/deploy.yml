@@ -1,0 +1,47 @@
+name: Deploy Vite site to GitHub Pages
+
+on:
+  push:
+    branches: [main]      # rebuild when main changes
+  workflow_dispatch:      # allow manual runs
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️  Check out source
+        uses: actions/checkout@v4
+
+      - name: 🧰  Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          # cache only the lockfile inside the sub-folder
+          cache-dependency-path: dataforgeits/package-lock.json
+
+      - name: 📦  Install dependencies
+        run: npm ci
+        working-directory: dataforgeits
+
+      - name: 🏗️  Build with Vite
+        run: npm run build
+        working-directory: dataforgeits
+
+      - name: 📤  Upload static site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dataforgeits/dist   # ← where Vite writes the build
+
+      - name: 🚀  Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
