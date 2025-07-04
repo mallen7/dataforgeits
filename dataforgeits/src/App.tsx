@@ -14,13 +14,16 @@ import {
   Workflow,
 } from "lucide-react";
 
-// Vite injects base URL – '/' in dev, your configured path in production
+// ---------------------------------------------------------------------------
+// CONFIG
+// ---------------------------------------------------------------------------
+// Vite injects base URL – '/' in dev, configured path in production
 const basename = import.meta.env.BASE_URL;
 const SITE_URL = "https://dataforgeitsolutions.com";
 
-/**********************
- * Typewriter Utility *
- **********************/
+/********************************
+ * Typewriter Utility            *
+ ********************************/
 function Typewriter({
   words,
   typingSpeed = 120,
@@ -36,14 +39,17 @@ function Typewriter({
   const [subIndex, setSubIndex] = useState(0);
   const [deleting, setDeleting] = useState(false);
 
+  // animation loop
   useEffect(() => {
     const currentWord = words[wordIndex];
 
+    // finished typing -> pause then start deleting
     if (subIndex === currentWord.length && !deleting) {
       const timeout = setTimeout(() => setDeleting(true), pause);
       return () => clearTimeout(timeout);
     }
 
+    // finished deleting -> move to next word
     if (subIndex === 0 && deleting) {
       setDeleting(false);
       setWordIndex((wordIndex + 1) % words.length);
@@ -61,22 +67,31 @@ function Typewriter({
   }, [subIndex, deleting, wordIndex, words, typingSpeed, deletingSpeed, pause]);
 
   return (
-    <span className="border-r-2 border-gray-100 pr-1">
+    <span className="font-extrabold border-r-2 border-gray-100 pr-1">
       {words[wordIndex].substring(0, subIndex)}
     </span>
   );
 }
 
-/**********************
- * Layout component   *
- **********************/
+/********************************
+ * Layout Component              *
+ ********************************/
 function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="relative min-h-screen w-screen flex flex-col bg-fixed bg-cover bg-center font-display text-gray-100"
+      className="relative flex min-h-screen w-screen flex-col bg-fixed bg-cover bg-center font-display text-gray-100"
       style={{ backgroundImage: `url(${BgImg})` }}
     >
-      <header className="flex flex-nowrap items-center justify-between gap-8 p-4">
+      {/* translucent dark overlay to reduce background intensity */}
+      <div
+        className="pointer-events-none absolute inset-0 bg-black/40"
+        aria-hidden="true"
+      />
+
+      {/* ------------------------------------------------------------- */}
+      {/* HEADER                                                    */}
+      {/* ------------------------------------------------------------- */}
+      <header className="relative flex flex-nowrap items-center justify-between gap-8 p-4">
         <a href={SITE_URL} className="inline-block">
           <img
             src={HeaderImg}
@@ -85,7 +100,7 @@ function Layout({ children }: { children: React.ReactNode }) {
           />
         </a>
 
-        <nav className="flex gap-8 text-lg whitespace-nowrap text-gray-100">
+        <nav className="flex gap-8 whitespace-nowrap text-lg text-gray-100">
           <a href={SITE_URL} className="hover:underline">
             Home
           </a>
@@ -98,18 +113,26 @@ function Layout({ children }: { children: React.ReactNode }) {
         </nav>
       </header>
 
-      <main className="flex-grow p-8 flex flex-col gap-4">{children}</main>
+      {/* ------------------------------------------------------------- */}
+      {/* PAGE CONTENT                                              */}
+      {/* ------------------------------------------------------------- */}
+      <main className="relative flex flex-grow flex-col gap-4 p-8">
+        {children}
+      </main>
 
-      <footer className="py-6 text-center text-lg font-medium">
-        New web experience coming soon
+      {/* ------------------------------------------------------------- */}
+      {/* FOOTER                                                    */}
+      {/* ------------------------------------------------------------- */}
+      <footer className="relative py-4 text-center text-sm text-gray-400">
+        © 2023 DataForge IT Solutions LLC
       </footer>
     </div>
   );
 }
 
-/**********************
- * Pages              *
- **********************/
+/********************************
+ * HOME PAGE                     *
+ ********************************/
 function Home() {
   const terms = [
     "AI Integration",
@@ -120,22 +143,58 @@ function Home() {
     "Cloud Infrastructure",
   ];
 
+  const highlights = [
+    {
+      title: "Executive AI Advisory",
+      icon: BrainCircuit,
+      desc: "Board‑level guidance on AI investments, ethics, and risk—turning buzzwords into bottom‑line impact.",
+    },
+    {
+      title: "Custom AI Solutions",
+      icon: Sparkles,
+      desc: "We architect, train, and deploy models tailored to your data, wrapped in secure, scalable APIs.",
+    },
+    {
+      title: "Full‑Stack Delivery",
+      icon: Settings,
+      desc: "From data pipelines to MLOps, we operationalise AI so it runs, scales, and improves continuously.",
+    },
+  ];
+
   return (
-    <div className="space-y-3">
-      <h1 className="text-6xl font-bold">DataForge IT Solutions</h1>
-      <h2 className="text-2xl">
-        Your premiere partner for <Typewriter words={terms} />
-      </h2>
+    <div className="space-y-8">
+      <div className="space-y-3">
+        <h1 className="text-6xl font-bold">DataForge IT Solutions</h1>
+        <h2 className="text-2xl">
+          Your premiere partner for <Typewriter words={terms} />
+        </h2>
+      </div>
+
+      <div className="flex flex-col items-center gap-6 md:flex-row md:justify-center">
+        {highlights.map(({ title, icon: Icon, desc }) => (
+          <div
+            key={title}
+            className="max-w-xs space-y-2 rounded-xl bg-white/10 p-5 text-center backdrop-blur-md"
+          >
+            <Icon size={32} className="mx-auto text-blue-300" />
+            <h3 className="text-lg font-bold">{title}</h3>
+            <p className="text-sm text-gray-200">{desc}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
+/********************************
+ * SERVICES PAGE                 *
+ ********************************/
 function Services() {
   const services = [
     {
       title: "AI Strategy & Roadmapping",
       icon: BrainCircuit,
-      desc: "Align your business goals with practical AI initiatives. We design data-driven roadmaps, calculate ROI, and prioritise high‑impact use‑cases so you invest where it matters most.",
+      desc: "Align your business goals with practical AI initiatives. We design data‑driven roadmaps, calculate ROI, and prioritise high‑impact use‑cases so you invest where it matters most.",
     },
     {
       title: "Machine Learning Development",
@@ -175,8 +234,8 @@ function Services() {
   ];
 
   return (
-    <section className="max-w-5xl mx-auto">
-      <h1 className="mb-6 text-4xl font-bold text-center">Our Services</h1>
+    <section className="mx-auto max-w-5xl">
+      <h1 className="mb-6 text-center text-4xl font-bold">Our Services</h1>
       <div className="grid gap-6 md:grid-cols-2">
         {services.map(({ title, icon: Icon, desc }) => (
           <div
@@ -184,7 +243,7 @@ function Services() {
             className="space-y-3 rounded-xl bg-white/10 p-5 backdrop-blur-md"
           >
             <div className="flex items-center gap-4">
-              <Icon size={28} className="text-blue-300 shrink-0" />
+              <Icon size={28} className="shrink-0 text-blue-300" />
               <span className="text-xl font-bold">{title}</span>
             </div>
             <p className="text-sm leading-snug text-gray-200">{desc}</p>
@@ -195,6 +254,9 @@ function Services() {
   );
 }
 
+/********************************
+ * CONTACT PAGE                  *
+ ********************************/
 function Contact() {
   const [formData, setFormData] = useState({
     name: "",
@@ -211,9 +273,8 @@ function Contact() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // TODO: replace placeholders with your EmailJS service ID, template ID, and public key.
     try {
       await send(
         import.meta.env.VITE_EMAILJS_SERVICE_ID,
@@ -231,17 +292,18 @@ function Contact() {
 
   if (sent) {
     return (
-      <h1 className="text-3xl font-bold text-center">
+      <h1 className="text-center text-3xl font-bold">
         Thanks! We'll be in touch shortly.
       </h1>
     );
   }
 
   return (
-    <section className="max-w-3xl mx-auto">
-      <h1 className="mb-6 text-4xl font-bold text-center">Contact Us</h1>
+    <section className="mx-auto max-w-3xl">
+      <h1 className="mb-6 text-center text-4xl font-bold">Contact Us</h1>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid gap-6 md:grid-cols-2">
+          {/* Name */}
           <input
             type="text"
             name="name"
@@ -251,6 +313,7 @@ function Contact() {
             onChange={handleChange}
             className="rounded-md bg-white/10 p-3 backdrop-blur-md placeholder-gray-300"
           />
+          {/* Company */}
           <input
             type="text"
             name="company"
@@ -259,6 +322,7 @@ function Contact() {
             onChange={handleChange}
             className="rounded-md bg-white/10 p-3 backdrop-blur-md placeholder-gray-300"
           />
+          {/* Email */}
           <input
             type="email"
             name="email"
@@ -268,6 +332,7 @@ function Contact() {
             onChange={handleChange}
             className="rounded-md bg-white/10 p-3 backdrop-blur-md placeholder-gray-300 md:col-span-2"
           />
+          {/* Type of project */}
           <input
             type="text"
             name="type"
@@ -277,6 +342,7 @@ function Contact() {
             className="rounded-md bg-white/10 p-3 backdrop-blur-md placeholder-gray-300 md:col-span-2"
           />
         </div>
+        {/* Message */}
         <textarea
           name="message"
           placeholder="Message"
@@ -297,9 +363,9 @@ function Contact() {
   );
 }
 
-/**************************************
- * App wrapper        *
- **********************/
+/********************************
+ * APP WRAPPER                   *
+ ********************************/
 export default function App() {
   return (
     <Router basename={basename}>
