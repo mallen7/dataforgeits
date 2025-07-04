@@ -2,8 +2,8 @@ name: Deploy Vite site to GitHub Pages
 
 on:
   push:
-    branches: [main]          # rebuild when main changes
-  workflow_dispatch:          # allow manual runs
+    branches: [main]
+  workflow_dispatch:
 
 concurrency:
   group: pages
@@ -18,13 +18,15 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
-    ###############################
-    # ▶ NEW — environment secrets #
-    ###############################
+    ####################################
+    # ▶ tell the job which environment #
+    ####################################
+    environment: dataforgeits   # ← change if you used a different name
+
     env:
-      VITE_EMAILJS_SERVICE_ID:   ${{ secrets.VITE_EMAILJS_SERVICE_ID }}
-      VITE_EMAILJS_TEMPLATE_ID:  ${{ secrets.VITE_EMAILJS_TEMPLATE_ID }}
-      VITE_EMAILJS_PUBLIC_KEY:   ${{ secrets.VITE_EMAILJS_PUBLIC_KEY }}
+      VITE_EMAILJS_SERVICE_ID:  ${{ secrets.VITE_EMAILJS_SERVICE_ID }}
+      VITE_EMAILJS_TEMPLATE_ID: ${{ secrets.VITE_EMAILJS_TEMPLATE_ID }}
+      VITE_EMAILJS_PUBLIC_KEY:  ${{ secrets.VITE_EMAILJS_PUBLIC_KEY }}
 
     steps:
       - name: ⬇️  Check out source
@@ -44,21 +46,19 @@ jobs:
       - name: 🏗️  Build with Vite
         working-directory: dataforgeits
         run: |
-          ########################################
-          # ▶ NEW — verify secrets are present   #
-          ########################################
-          if [ -z "$VITE_EMAILJS_SERVICE_ID" ] || \
-             [ -z "$VITE_EMAILJS_TEMPLATE_ID" ] || \
-             [ -z "$VITE_EMAILJS_PUBLIC_KEY" ]; then
-            echo "::error ::One or more EmailJS secrets are missing."
-            exit 1
-          fi
+          # Abort if any secret is missing
+          for var in VITE_EMAILJS_SERVICE_ID VITE_EMAILJS_TEMPLATE_ID VITE_EMAILJS_PUBLIC_KEY; do
+            if [ -z "${!var}" ]; then
+              echo "::error ::Environment secret $var is missing."
+              exit 1
+            fi
+          done
           npm run build
 
       - name: 📤  Upload static site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dataforgeits/dist   # where Vite writes the build
+          path: dataforgeits/dist
 
       - name: 🚀  Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
