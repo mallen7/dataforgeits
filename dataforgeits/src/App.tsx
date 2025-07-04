@@ -17,7 +17,7 @@ import {
 // ---------------------------------------------------------------------------
 // CONFIG
 // ---------------------------------------------------------------------------
-// Vite injects base URL – '/' in dev, configured path in production
+// Vite injects the base URL – "/" in dev, configured path in production
 const basename = import.meta.env.BASE_URL;
 const SITE_URL = "https://dataforgeitsolutions.com";
 
@@ -43,27 +43,25 @@ function Typewriter({
   useEffect(() => {
     const currentWord = words[wordIndex];
 
-    // finished typing -> pause then start deleting
+    // finished typing –> pause, then delete
     if (subIndex === currentWord.length && !deleting) {
-      const timeout = setTimeout(() => setDeleting(true), pause);
-      return () => clearTimeout(timeout);
+      const t = setTimeout(() => setDeleting(true), pause);
+      return () => clearTimeout(t);
     }
 
-    // finished deleting -> move to next word
+    // finished deleting –> next word
     if (subIndex === 0 && deleting) {
       setDeleting(false);
       setWordIndex((wordIndex + 1) % words.length);
       return;
     }
 
-    const timeout = setTimeout(
-      () => {
-        setSubIndex((prev) => prev + (deleting ? -1 : 1));
-      },
+    const t = setTimeout(
+      () => setSubIndex((prev) => prev + (deleting ? -1 : 1)),
       deleting ? deletingSpeed : typingSpeed
     );
 
-    return () => clearTimeout(timeout);
+    return () => clearTimeout(t);
   }, [subIndex, deleting, wordIndex, words, typingSpeed, deletingSpeed, pause]);
 
   return (
@@ -82,15 +80,10 @@ function Layout({ children }: { children: React.ReactNode }) {
       className="relative flex min-h-screen w-screen flex-col bg-fixed bg-cover bg-center font-display text-gray-100"
       style={{ backgroundImage: `url(${BgImg})` }}
     >
-      {/* translucent dark overlay to reduce background intensity */}
-      <div
-        className="pointer-events-none absolute inset-0 bg-black/40"
-        aria-hidden="true"
-      />
+      {/* dim background */}
+      <div className="pointer-events-none absolute inset-0 bg-black/40" />
 
-      {/* ------------------------------------------------------------- */}
-      {/* HEADER                                                    */}
-      {/* ------------------------------------------------------------- */}
+      {/* Header */}
       <header className="relative flex flex-nowrap items-center justify-between gap-8 p-4">
         <a href={SITE_URL} className="inline-block">
           <img
@@ -99,7 +92,6 @@ function Layout({ children }: { children: React.ReactNode }) {
             className="h-24 w-auto"
           />
         </a>
-
         <nav className="flex gap-8 whitespace-nowrap text-lg text-gray-100">
           <a href={SITE_URL} className="hover:underline">
             Home
@@ -113,25 +105,21 @@ function Layout({ children }: { children: React.ReactNode }) {
         </nav>
       </header>
 
-      {/* ------------------------------------------------------------- */}
-      {/* PAGE CONTENT                                              */}
-      {/* ------------------------------------------------------------- */}
+      {/* Main content */}
       <main className="relative flex flex-grow flex-col gap-4 p-8">
         {children}
       </main>
 
-      {/* ------------------------------------------------------------- */}
-      {/* FOOTER                                                    */}
-      {/* ------------------------------------------------------------- */}
+      {/* Footer */}
       <footer className="relative py-4 text-center text-sm text-gray-400">
-        © 2023 DataForge IT Solutions LLC
+        © 2023 DataForge IT Solutions LLC
       </footer>
     </div>
   );
 }
 
 /********************************
- * HOME PAGE                     *
+ * Home Page                     *
  ********************************/
 function Home() {
   const terms = [
@@ -147,7 +135,7 @@ function Home() {
     {
       title: "Executive AI Advisory",
       icon: BrainCircuit,
-      desc: "Board‑level guidance on AI investments, ethics, and risk—turning buzzwords into bottom‑line impact.",
+      desc: "Board-level guidance on AI investments, ethics, and risk—turning buzzwords into bottom-line impact.",
     },
     {
       title: "Custom AI Solutions",
@@ -155,7 +143,7 @@ function Home() {
       desc: "We architect, train, and deploy models tailored to your data, wrapped in secure, scalable APIs.",
     },
     {
-      title: "Full‑Stack Delivery",
+      title: "Full-Stack Delivery",
       icon: Settings,
       desc: "From data pipelines to MLOps, we operationalise AI so it runs, scales, and improves continuously.",
     },
@@ -187,14 +175,14 @@ function Home() {
 }
 
 /********************************
- * SERVICES PAGE                 *
+ * Services Page                 *
  ********************************/
 function Services() {
   const services = [
     {
       title: "AI Strategy & Roadmapping",
       icon: BrainCircuit,
-      desc: "Align your business goals with practical AI initiatives. We design data‑driven roadmaps, calculate ROI, and prioritise high‑impact use‑cases so you invest where it matters most.",
+      desc: "Align your business goals with practical AI initiatives. We design data-driven roadmaps, calculate ROI, and prioritise high-impact use-cases so you invest where it matters most.",
     },
     {
       title: "Machine Learning Development",
@@ -204,22 +192,22 @@ function Services() {
     {
       title: "Generative AI Solutions",
       icon: Sparkles,
-      desc: "Unlock LLMs and diffusion models to automate content, code, and design. We fine‑tune on your domain data and wrap everything in robust governance layers.",
+      desc: "Unlock LLMs and diffusion models to automate content, code, and design. We fine-tune on your domain data and wrap everything in robust governance layers.",
     },
     {
       title: "DevOps Automation & CI/CD",
       icon: Settings,
-      desc: "Cut release cycle times with infrastructure‑as‑code, container orchestration, and self‑healing pipelines that keep compliance and security baked in.",
+      desc: "Cut release cycle times with infrastructure-as-code, container orchestration, and self-healing pipelines that keep compliance and security baked in.",
     },
     {
       title: "Cloud Architecture & Migration",
       icon: Cloud,
-      desc: "Modernise legacy workloads or design green‑field platforms using AWS, Azure, or GCP best‑practices for cost efficiency, scalability, and governance.",
+      desc: "Modernise legacy workloads or design green-field platforms using AWS, Azure, or GCP best-practices for cost efficiency, scalability, and governance.",
     },
     {
       title: "Data Engineering & Warehousing",
       icon: Database,
-      desc: "We build data lakes, ELT pipelines, and real‑time streams that turn raw data into actionable insights using modern stacks like Snowflake, Redshift, and dbt.",
+      desc: "We build data lakes, ELT pipelines, and real-time streams that turn raw data into actionable insights using modern stacks like Snowflake, Redshift, and dbt.",
     },
     {
       title: "AI Governance & Compliance",
@@ -229,7 +217,7 @@ function Services() {
     {
       title: "Intelligent Process Automation",
       icon: Workflow,
-      desc: "Combine RPA with cognitive services to eliminate repetitive tasks, reduce error rates, and let your team focus on high‑value creativity and strategy.",
+      desc: "Combine RPA with cognitive services to eliminate repetitive tasks, reduce error rates, and let your team focus on high-value creativity and strategy.",
     },
   ];
 
@@ -255,7 +243,7 @@ function Services() {
 }
 
 /********************************
- * CONTACT PAGE                  *
+ * Contact Page                  *
  ********************************/
 function Contact() {
   const [formData, setFormData] = useState({
@@ -364,7 +352,7 @@ function Contact() {
 }
 
 /********************************
- * APP WRAPPER                   *
+ * App Wrapper                   *
  ********************************/
 export default function App() {
   return (
