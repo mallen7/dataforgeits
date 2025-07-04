@@ -1,8 +1,12 @@
+/* eslint-disable react-refresh/only-export-components */
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async"; // ← NEW
 import { send } from "@emailjs/browser";
+
 import HeaderImg from "./assets/Header.png";
 import BgImg from "./assets/chip-line-background.png";
+
 import {
   BrainCircuit,
   Code,
@@ -17,18 +21,17 @@ import {
 // ---------------------------------------------------------------------------
 // CONFIG
 // ---------------------------------------------------------------------------
-// Vite injects the base URL – "/" in dev, configured path in production
-const basename = import.meta.env.BASE_URL;
-const SITE_URL = "https://dataforgeitsolutions.com";
+const basename = import.meta.env.BASE_URL; // vite base
+const SITE_URL = "https://dataforgeitsolutions.com"; // canonical url
 
 /********************************
- * Typewriter Utility            *
+ * Typewriter Utility
  ********************************/
 function Typewriter({
   words,
   typingSpeed = 120,
   deletingSpeed = 60,
-  pause = 2000,
+  pause = 2_000,
 }: {
   words: string[];
   typingSpeed?: number;
@@ -39,17 +42,13 @@ function Typewriter({
   const [subIndex, setSubIndex] = useState(0);
   const [deleting, setDeleting] = useState(false);
 
-  // animation loop
   useEffect(() => {
-    const currentWord = words[wordIndex];
+    const current = words[wordIndex];
 
-    // finished typing –> pause, then delete
-    if (subIndex === currentWord.length && !deleting) {
+    if (subIndex === current.length && !deleting) {
       const t = setTimeout(() => setDeleting(true), pause);
       return () => clearTimeout(t);
     }
-
-    // finished deleting –> next word
     if (subIndex === 0 && deleting) {
       setDeleting(false);
       setWordIndex((wordIndex + 1) % words.length);
@@ -57,10 +56,9 @@ function Typewriter({
     }
 
     const t = setTimeout(
-      () => setSubIndex((prev) => prev + (deleting ? -1 : 1)),
+      () => setSubIndex((s) => s + (deleting ? -1 : 1)),
       deleting ? deletingSpeed : typingSpeed
     );
-
     return () => clearTimeout(t);
   }, [subIndex, deleting, wordIndex, words, typingSpeed, deletingSpeed, pause]);
 
@@ -72,54 +70,67 @@ function Typewriter({
 }
 
 /********************************
- * Layout Component              *
+ * Layout
  ********************************/
 function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div
-      className="relative flex min-h-screen w-screen flex-col bg-fixed bg-cover bg-center font-display text-gray-100"
-      style={{ backgroundImage: `url(${BgImg})` }}
-    >
-      {/* dim background */}
-      <div className="pointer-events-none absolute inset-0 bg-black/40" />
+    <>
+      {/* ─────────── Schema.org Organization markup ─────────── */}
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "DataForge IT Solutions LLC",
+            url: "https://dataforgeitsolutions.com",
+            logo: "https://dataforgeitsolutions.com/Header-Full-Size-600x400.png",
+          })}
+        </script>
+      </Helmet>
 
-      {/* Header */}
-      <header className="relative flex flex-nowrap items-center justify-between gap-8 p-4">
-        <a href={SITE_URL} className="inline-block">
-          <img
-            src={HeaderImg}
-            alt="DataForge IT Solutions logo"
-            className="h-24 w-auto"
-          />
-        </a>
-        <nav className="flex gap-8 whitespace-nowrap text-lg text-gray-100">
-          <a href={SITE_URL} className="hover:underline">
-            Home
+      {/* ─────────── Site layout ─────────── */}
+      <div
+        className="relative flex min-h-screen w-screen flex-col bg-fixed bg-cover bg-center font-display text-gray-100"
+        style={{ backgroundImage: `url(${BgImg})` }}
+      >
+        <div className="pointer-events-none absolute inset-0 bg-black/40" />
+
+        <header className="relative flex flex-nowrap items-center justify-between gap-8 p-4">
+          <a href={SITE_URL}>
+            <img
+              src={HeaderImg}
+              alt="DataForge IT Solutions logo"
+              className="h-24 w-auto"
+            />
           </a>
-          <Link to="/services" className="hover:underline">
-            Services
-          </Link>
-          <Link to="/contact" className="hover:underline">
-            Contact
-          </Link>
-        </nav>
-      </header>
 
-      {/* Main content */}
-      <main className="relative flex flex-grow flex-col gap-4 p-8">
-        {children}
-      </main>
+          <nav className="flex gap-8 whitespace-nowrap text-lg">
+            <a href={SITE_URL} className="hover:underline">
+              Home
+            </a>
+            <Link to="/services" className="hover:underline">
+              Services
+            </Link>
+            <Link to="/contact" className="hover:underline">
+              Contact
+            </Link>
+          </nav>
+        </header>
 
-      {/* Footer */}
-      <footer className="relative py-4 text-center text-sm text-gray-400">
-        © 2023 DataForge IT Solutions LLC
-      </footer>
-    </div>
+        <main className="relative flex flex-grow flex-col gap-4 p-8">
+          {children}
+        </main>
+
+        <footer className="relative py-4 text-center text-sm text-gray-400">
+          © 2023 DataForge IT Solutions LLC
+        </footer>
+      </div>
+    </>
   );
 }
 
 /********************************
- * Home Page                     *
+ * Home Page (+ SEO meta)
  ********************************/
 function Home() {
   const terms = [
@@ -150,100 +161,129 @@ function Home() {
   ];
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-3">
-        <h1 className="text-6xl font-bold">DataForge IT Solutions</h1>
-        <h2 className="text-2xl">
-          Your premiere partner for <Typewriter words={terms} />
-        </h2>
-      </div>
+    <>
+      <Helmet>
+        <title>AI Integration &amp; Automation | DataForge IT Solutions</title>
+        <meta
+          name="description"
+          content="End-to-end AI, DevOps automation, and data-engineering services that turn innovation into bottom-line impact."
+        />
+        <link rel="canonical" href={SITE_URL} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={SITE_URL} />
+        <meta property="og:title" content="DataForge IT Solutions" />
+        <meta
+          property="og:description"
+          content="Strategic advisory and full-stack delivery of AI, cloud, and automation solutions."
+        />
+      </Helmet>
 
-      <div className="flex flex-col items-center gap-6 md:flex-row md:justify-center">
-        {highlights.map(({ title, icon: Icon, desc }) => (
-          <div
-            key={title}
-            className="max-w-xs space-y-2 rounded-xl bg-white/10 p-5 text-center backdrop-blur-md"
-          >
-            <Icon size={32} className="mx-auto text-blue-300" />
-            <h3 className="text-lg font-bold">{title}</h3>
-            <p className="text-sm text-gray-200">{desc}</p>
-          </div>
-        ))}
+      <div className="space-y-8">
+        <div className="space-y-3">
+          <h1 className="text-6xl font-bold">DataForge IT Solutions</h1>
+          <h2 className="text-2xl">
+            Your premiere partner for <Typewriter words={terms} />
+          </h2>
+        </div>
+
+        <div className="flex flex-col items-center gap-6 md:flex-row md:justify-center">
+          {highlights.map(({ title, icon: Icon, desc }) => (
+            <div
+              key={title}
+              className="max-w-xs space-y-2 rounded-xl bg-white/10 p-5 text-center backdrop-blur-md"
+            >
+              <Icon size={32} className="mx-auto text-blue-300" />
+              <h3 className="text-lg font-bold">{title}</h3>
+              <p className="text-sm text-gray-200">{desc}</p>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
 /********************************
- * Services Page                 *
+ * Services Page (+ SEO meta)
  ********************************/
 function Services() {
   const services = [
     {
       title: "AI Strategy & Roadmapping",
       icon: BrainCircuit,
-      desc: "Align your business goals with practical AI initiatives. We design data-driven roadmaps, calculate ROI, and prioritise high-impact use-cases so you invest where it matters most.",
+      desc: "Align your business goals with practical AI initiatives. We design data-driven roadmaps, calculate ROI, and prioritise high-impact use-cases.",
     },
     {
       title: "Machine Learning Development",
       icon: Code,
-      desc: "Our engineers build, train, and deploy bespoke ML models—supervised, unsupervised, or deep learning—that integrate seamlessly with your products and workflows.",
+      desc: "We build, train, and deploy bespoke ML models that integrate seamlessly with your products and workflows.",
     },
     {
       title: "Generative AI Solutions",
       icon: Sparkles,
-      desc: "Unlock LLMs and diffusion models to automate content, code, and design. We fine-tune on your domain data and wrap everything in robust governance layers.",
+      desc: "Unlock LLMs and diffusion models to automate content, code, and design—securely and at scale.",
     },
     {
       title: "DevOps Automation & CI/CD",
       icon: Settings,
-      desc: "Cut release cycle times with infrastructure-as-code, container orchestration, and self-healing pipelines that keep compliance and security baked in.",
+      desc: "Cut release cycles with IaC, container orchestration, and self-healing pipelines.",
     },
     {
       title: "Cloud Architecture & Migration",
       icon: Cloud,
-      desc: "Modernise legacy workloads or design green-field platforms using AWS, Azure, or GCP best-practices for cost efficiency, scalability, and governance.",
+      desc: "Modernise legacy workloads or build green-field platforms on AWS, Azure, or GCP.",
     },
     {
       title: "Data Engineering & Warehousing",
       icon: Database,
-      desc: "We build data lakes, ELT pipelines, and real-time streams that turn raw data into actionable insights using modern stacks like Snowflake, Redshift, and dbt.",
+      desc: "From ELT to real-time streams, we convert raw data into actionable insight.",
     },
     {
       title: "AI Governance & Compliance",
       icon: ShieldCheck,
-      desc: "Establish policies, audit trails, and explainability frameworks that keep your AI initiatives ethical, secure, and aligned with global regulations.",
+      desc: "Policies, audit trails, and explainability frameworks that keep your AI ethical and secure.",
     },
     {
       title: "Intelligent Process Automation",
       icon: Workflow,
-      desc: "Combine RPA with cognitive services to eliminate repetitive tasks, reduce error rates, and let your team focus on high-value creativity and strategy.",
+      desc: "Combine RPA with cognitive services to eliminate repetitive tasks and boost productivity.",
     },
   ];
 
   return (
-    <section className="mx-auto max-w-5xl">
-      <h1 className="mb-6 text-center text-4xl font-bold">Our Services</h1>
-      <div className="grid gap-6 md:grid-cols-2">
-        {services.map(({ title, icon: Icon, desc }) => (
-          <div
-            key={title}
-            className="space-y-3 rounded-xl bg-white/10 p-5 backdrop-blur-md"
-          >
-            <div className="flex items-center gap-4">
-              <Icon size={28} className="shrink-0 text-blue-300" />
-              <span className="text-xl font-bold">{title}</span>
+    <>
+      <Helmet>
+        <title>Services | DataForge IT Solutions</title>
+        <meta
+          name="description"
+          content="Explore our full-stack services: AI strategy, ML development, DevOps automation, cloud architecture, and more."
+        />
+        <link rel="canonical" href={`${SITE_URL}/services`} />
+      </Helmet>
+
+      <section className="mx-auto max-w-5xl">
+        <h1 className="mb-6 text-center text-4xl font-bold">Our Services</h1>
+        <div className="grid gap-6 md:grid-cols-2">
+          {services.map(({ title, icon: Icon, desc }) => (
+            <div
+              key={title}
+              className="space-y-3 rounded-xl bg-white/10 p-5 backdrop-blur-md"
+            >
+              <div className="flex items-center gap-4">
+                <Icon size={28} className="shrink-0 text-blue-300" />
+                <span className="text-xl font-bold">{title}</span>
+              </div>
+              <p className="text-sm leading-snug text-gray-200">{desc}</p>
             </div>
-            <p className="text-sm leading-snug text-gray-200">{desc}</p>
-          </div>
-        ))}
-      </div>
-    </section>
+          ))}
+        </div>
+      </section>
+    </>
   );
 }
 
 /********************************
- * Contact Page                  *
+ * Contact Page (+ SEO meta)
  ********************************/
 function Contact() {
   const [formData, setFormData] = useState({
@@ -257,9 +297,7 @@ function Contact() {
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  ) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -271,88 +309,101 @@ function Contact() {
         import.meta.env.VITE_EMAILJS_PUBLIC_KEY
       );
       setSent(true);
-    } catch (err) {
+    } catch {
       alert(
         "There was a problem sending your message. Please try again later."
       );
     }
   };
 
-  if (sent) {
+  if (sent)
     return (
-      <h1 className="text-center text-3xl font-bold">
-        Thanks! We'll be in touch shortly.
-      </h1>
+      <>
+        <Helmet>
+          <title>Message Sent | DataForge IT Solutions</title>
+          <meta name="robots" content="noindex" />
+        </Helmet>
+        <h1 className="text-center text-3xl font-bold">
+          Thanks! We’ll be in touch shortly.
+        </h1>
+      </>
     );
-  }
 
   return (
-    <section className="mx-auto max-w-3xl">
-      <h1 className="mb-6 text-center text-4xl font-bold">Contact Us</h1>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* Name */}
-          <input
-            type="text"
-            name="name"
-            placeholder="Name"
-            required
-            value={formData.name}
-            onChange={handleChange}
-            className="rounded-md bg-white/10 p-3 backdrop-blur-md placeholder-gray-300"
-          />
-          {/* Company */}
-          <input
-            type="text"
-            name="company"
-            placeholder="Company"
-            value={formData.company}
-            onChange={handleChange}
-            className="rounded-md bg-white/10 p-3 backdrop-blur-md placeholder-gray-300"
-          />
-          {/* Email */}
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            required
-            value={formData.email}
-            onChange={handleChange}
-            className="rounded-md bg-white/10 p-3 backdrop-blur-md placeholder-gray-300 md:col-span-2"
-          />
-          {/* Type of project */}
-          <input
-            type="text"
-            name="type"
-            placeholder="Type of Project"
-            value={formData.type}
-            onChange={handleChange}
-            className="rounded-md bg-white/10 p-3 backdrop-blur-md placeholder-gray-300 md:col-span-2"
-          />
-        </div>
-        {/* Message */}
-        <textarea
-          name="message"
-          placeholder="Message"
-          required
-          rows={6}
-          value={formData.message}
-          onChange={handleChange}
-          className="w-full rounded-md bg-white/10 p-3 backdrop-blur-md placeholder-gray-300"
+    <>
+      <Helmet>
+        <title>Contact | DataForge IT Solutions</title>
+        <meta
+          name="description"
+          content="Reach out to discuss AI integration, automation, or any data challenge. We'd love to help."
         />
-        <button
-          type="submit"
-          className="mx-auto block rounded-lg bg-blue-500 px-6 py-3 text-lg font-semibold text-white hover:bg-blue-600"
-        >
-          Send Message
-        </button>
-      </form>
-    </section>
+        <link rel="canonical" href={`${SITE_URL}/contact`} />
+      </Helmet>
+
+      <section className="mx-auto max-w-3xl">
+        <h1 className="mb-6 text-center text-4xl font-bold">Contact Us</h1>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            <input
+              type="text"
+              name="name"
+              placeholder="Name"
+              required
+              value={formData.name}
+              onChange={handleChange}
+              className="rounded-md bg-white/10 p-3 backdrop-blur-md placeholder-gray-300"
+            />
+            <input
+              type="text"
+              name="company"
+              placeholder="Company"
+              value={formData.company}
+              onChange={handleChange}
+              className="rounded-md bg-white/10 p-3 backdrop-blur-md placeholder-gray-300"
+            />
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              required
+              value={formData.email}
+              onChange={handleChange}
+              className="rounded-md bg-white/10 p-3 backdrop-blur-md placeholder-gray-300 md:col-span-2"
+            />
+            <input
+              type="text"
+              name="type"
+              placeholder="Type of Project"
+              value={formData.type}
+              onChange={handleChange}
+              className="rounded-md bg-white/10 p-3 backdrop-blur-md placeholder-gray-300 md:col-span-2"
+            />
+          </div>
+
+          <textarea
+            name="message"
+            placeholder="Message"
+            required
+            rows={6}
+            value={formData.message}
+            onChange={handleChange}
+            className="w-full rounded-md bg-white/10 p-3 backdrop-blur-md placeholder-gray-300"
+          />
+
+          <button
+            type="submit"
+            className="mx-auto block rounded-lg bg-blue-500 px-6 py-3 text-lg font-semibold text-white hover:bg-blue-600"
+          >
+            Send Message
+          </button>
+        </form>
+      </section>
+    </>
   );
 }
 
 /********************************
- * App Wrapper                   *
+ * App Wrapper
  ********************************/
 export default function App() {
   return (
