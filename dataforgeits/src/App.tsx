@@ -191,7 +191,7 @@ function Home() {
   return (
     <>
       <Helmet>
-        <title>AI Integration &amp; Automation | DataForge IT Solutions</title>
+        <title>AI &amp; Software Development | DataForge IT Solutions</title>
         <meta
           name="description"
           content="End-to-end AI, DevOps automation, and data-engineering services that turn innovation into bottom-line impact."
