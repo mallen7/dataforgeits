@@ -1,12 +1,19 @@
 /* eslint-disable react-refresh/only-export-components */
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async"; // ← NEW
+import { Helmet } from "react-helmet-async";
 import { send } from "@emailjs/browser";
 
+// ── assets (PNG + WebP) ───────────────────────────────────────────────
 import HeaderImg from "./assets/Header.png";
-import BgImg from "./assets/chip-line-background.png";
+import LogoWebp1x from "./assets/Header@1x.webp";
+import LogoWebp768 from "./assets/Header@768.webp";
 
+import BgImg from "./assets/chip-line-background.png";
+import BgWebp1x from "./assets/Bg@1x.webp";
+import BgWebp768 from "./assets/Bg@768.webp";
+
+// ── icons ────────────────────────────────────────────────────────────
 import {
   BrainCircuit,
   Code,
@@ -75,33 +82,54 @@ function Typewriter({
 function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      {/* ─────────── Schema.org Organization markup ─────────── */}
+      {/* ─────── Schema.org Organization markup ─────── */}
       <Helmet>
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Organization",
             name: "DataForge IT Solutions LLC",
-            url: "https://dataforgeitsolutions.com",
-            logo: "https://dataforgeitsolutions.com/Header-Full-Size-600x400.png",
+            url: SITE_URL,
+            logo: `${SITE_URL}/assets/Header@1x.webp`,
           })}
         </script>
       </Helmet>
 
-      {/* ─────────── Site layout ─────────── */}
-      <div
-        className="relative flex min-h-screen w-screen flex-col bg-fixed bg-cover bg-center font-display text-gray-100"
-        style={{ backgroundImage: `url(${BgImg})` }}
-      >
+      {/* ─────── Site layout ─────── */}
+      <div className="relative flex min-h-screen w-screen flex-col font-display text-gray-100">
+        {/* responsive background */}
+        <picture>
+          <source
+            srcSet={`${BgWebp1x} 1920w, ${BgWebp768} 768w`}
+            type="image/webp"
+          />
+          <img
+            src={BgImg}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover"
+            loading="eager"
+            decoding="async"
+          />
+        </picture>
+
+        {/* dim overlay */}
         <div className="pointer-events-none absolute inset-0 bg-black/40" />
 
+        {/* Header */}
         <header className="relative flex flex-nowrap items-center justify-between gap-8 p-4">
-          <a href={SITE_URL}>
-            <img
-              src={HeaderImg}
-              alt="DataForge IT Solutions logo"
-              className="h-24 w-auto"
-            />
+          <a href={SITE_URL} className="block h-24 w-auto">
+            <picture>
+              <source
+                srcSet={`${LogoWebp1x} 400w, ${LogoWebp768} 200w`}
+                type="image/webp"
+              />
+              <img
+                src={HeaderImg}
+                alt="DataForge IT Solutions logo"
+                className="h-full w-auto"
+                decoding="async"
+              />
+            </picture>
           </a>
 
           <nav className="flex gap-8 whitespace-nowrap text-lg">
