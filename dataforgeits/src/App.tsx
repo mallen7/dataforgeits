@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { Helmet } from "react-helmet-async";
 import { send } from "@emailjs/browser";
 
@@ -8,28 +8,29 @@ import { send } from "@emailjs/browser";
 import HeaderImg from "./assets/Header.png";
 import LogoWebp1x from "./assets/Header@1x.webp";
 import LogoWebp768 from "./assets/Header@768.webp";
-
 import BgImg from "./assets/chip-line-background.png";
 import BgWebp1x from "./assets/Bg@1x.webp";
 import BgWebp768 from "./assets/Bg@768.webp";
 
-// ── icons ────────────────────────────────────────────────────────────
-import {
-  BrainCircuit,
-  Code,
-  Sparkles,
-  Settings,
-  Cloud,
-  Database,
-  ShieldCheck,
-  Workflow,
-} from "lucide-react";
+// ── icons (lazy-loaded Lucide) ───────────────────────────────────────
+const BrainCircuit = lazy(
+  () => import("lucide-react/dist/esm/icons/brain-circuit")
+);
+const Code = lazy(() => import("lucide-react/dist/esm/icons/code"));
+const Sparkles = lazy(() => import("lucide-react/dist/esm/icons/sparkles"));
+const Settings = lazy(() => import("lucide-react/dist/esm/icons/settings"));
+const Cloud = lazy(() => import("lucide-react/dist/esm/icons/cloud"));
+const Database = lazy(() => import("lucide-react/dist/esm/icons/database"));
+const ShieldCheck = lazy(
+  () => import("lucide-react/dist/esm/icons/shield-check")
+);
+const Workflow = lazy(() => import("lucide-react/dist/esm/icons/workflow"));
 
 // ---------------------------------------------------------------------------
 // CONFIG
 // ---------------------------------------------------------------------------
-const basename = import.meta.env.BASE_URL; // vite base
-const SITE_URL = "https://dataforgeitsolutions.com"; // canonical url
+const basename = import.meta.env.BASE_URL;
+const SITE_URL = "https://dataforgeitsolutions.com";
 
 /********************************
  * Typewriter Utility
@@ -95,9 +96,8 @@ function Layout({ children }: { children: React.ReactNode }) {
         </script>
       </Helmet>
 
-      {/* ─────── Site layout ─────── */}
       <div className="relative flex min-h-screen w-screen flex-col font-display text-gray-100">
-        {/* responsive background */}
+        {/* background */}
         <picture>
           <source
             srcSet={`${BgWebp1x} 1920w, ${BgWebp768} 768w`}
@@ -112,7 +112,6 @@ function Layout({ children }: { children: React.ReactNode }) {
           />
         </picture>
 
-        {/* dim overlay */}
         <div className="pointer-events-none absolute inset-0 bg-black/40" />
 
         {/* Header */}
@@ -158,7 +157,7 @@ function Layout({ children }: { children: React.ReactNode }) {
 }
 
 /********************************
- * Home Page (+ SEO meta)
+ * Home Page
  ********************************/
 function Home() {
   const terms = [
@@ -197,13 +196,6 @@ function Home() {
           content="End-to-end AI, DevOps automation, and data-engineering services that turn innovation into bottom-line impact."
         />
         <link rel="canonical" href={SITE_URL} />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={SITE_URL} />
-        <meta property="og:title" content="DataForge IT Solutions" />
-        <meta
-          property="og:description"
-          content="Strategic advisory and full-stack delivery of AI, cloud, and automation solutions."
-        />
       </Helmet>
 
       <div className="space-y-8">
@@ -220,7 +212,13 @@ function Home() {
               key={title}
               className="max-w-xs space-y-2 rounded-xl bg-white/10 p-5 text-center backdrop-blur-md"
             >
-              <Icon size={32} className="mx-auto text-blue-300" />
+              <Suspense fallback={null}>
+                <Icon
+                  width={32}
+                  height={32}
+                  className="mx-auto text-blue-300"
+                />
+              </Suspense>
               <h3 className="text-lg font-bold">{title}</h3>
               <p className="text-sm text-gray-200">{desc}</p>
             </div>
@@ -232,7 +230,7 @@ function Home() {
 }
 
 /********************************
- * Services Page (+ SEO meta)
+ * Services Page
  ********************************/
 function Services() {
   const services = [
@@ -298,7 +296,13 @@ function Services() {
               className="space-y-3 rounded-xl bg-white/10 p-5 backdrop-blur-md"
             >
               <div className="flex items-center gap-4">
-                <Icon size={28} className="shrink-0 text-blue-300" />
+                <Suspense fallback={null}>
+                  <Icon
+                    width={28}
+                    height={28}
+                    className="shrink-0 text-blue-300"
+                  />
+                </Suspense>
                 <span className="text-xl font-bold">{title}</span>
               </div>
               <p className="text-sm leading-snug text-gray-200">{desc}</p>
@@ -311,7 +315,7 @@ function Services() {
 }
 
 /********************************
- * Contact Page (+ SEO meta)
+ * Contact Page
  ********************************/
 function Contact() {
   const [formData, setFormData] = useState({
@@ -344,7 +348,7 @@ function Contact() {
     }
   };
 
-  if (sent)
+  if (sent) {
     return (
       <>
         <Helmet>
@@ -356,6 +360,7 @@ function Contact() {
         </h1>
       </>
     );
+  }
 
   return (
     <>
@@ -371,6 +376,7 @@ function Contact() {
       <section className="mx-auto max-w-3xl">
         <h1 className="mb-6 text-center text-4xl font-bold">Contact Us</h1>
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* form fields */}
           <div className="grid gap-6 md:grid-cols-2">
             <input
               type="text"
