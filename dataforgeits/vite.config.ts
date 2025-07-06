@@ -12,7 +12,7 @@ export default defineConfig(({ command }) => {
 
     // ── inline critical CSS & @font-face ──
     beasties({
-      options: { pruneSource: true, inlineFonts: true, preload: 'swap' }
+      options: { pruneSource: false, inlineFonts: true, preload: 'swap' }
     }),
 
     // ── auto-inject <link rel="modulepreload" href="/assets/index-HASH.js" as="script"> ──
